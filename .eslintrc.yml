@@ -8,6 +8,8 @@ extends:
 parser: "@typescript-eslint/parser"
 parserOptions:
   ecmaVersion: 12
+  sourceType: "commonjs"
+  project: "tsconfig.json"
 plugins:
   - "@typescript-eslint"
 rules: { "no-console": ["error", { allow: ["warn", "error"] }] }

@@ -1,8 +1,17 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
-const eventSchema = new Schema({
+// TODO: move these types somewhere reusable or where it makes sense
+interface EventInputType extends mongoose.Document {
+  name: string;
+  description: string;
+  maxAttendees: number;
+  start: string;
+  end: string;
+}
+
+const EventSchema: mongoose.Schema<EventInputType> = new Schema({
   name: {
     type: String,
     required: true,
@@ -29,4 +38,6 @@ const eventSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model("Event", eventSchema);
+const EventModel = mongoose.model<EventInputType>("Event", EventSchema);
+
+export default EventModel;

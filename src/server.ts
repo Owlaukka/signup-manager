@@ -1,64 +1,18 @@
-const Koa = require("koa");
-const { ApolloServer, gql } = require("apollo-server-koa");
-const mongoose = require("mongoose");
-require("dotenv").config();
+import Koa from "koa";
+import { ApolloServer } from "apollo-server-koa";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-const Event = require("./models/Event.ts");
+import schema from "./graphql";
 
-const typeDefs = gql`
-  type Event {
-    _id: ID!
-    name: String!
-    description: String
-    maxAttendees: Int
-    start: String!
-    end: String!
-  }
+dotenv.config();
 
-  type Query {
-    events: [Event!]!
-  }
-
-  type Mutation {
-    createEvent(
-      name: String!
-      description: String
-      maxAttendees: Int
-      start: String!
-      end: String!
-    ): Event
-  }
-`;
-
-const resolvers = {
-  Query: {
-    events: async () => Event.find(),
-  },
-  Mutation: {
-    createEvent: async (
-      _: any,
-      { name, description, maxAttendees, start, end }: any
-    ) => {
-      const newEvent = new Event({
-        name,
-        description,
-        maxAttendees,
-        start: new Date(start),
-        end: new Date(end),
-      });
-      return newEvent.save();
-    },
-  },
-};
-
-const server = new ApolloServer({ typeDefs, resolvers });
-
+const server = new ApolloServer({ schema });
 const app = new Koa();
-server.applyMiddleware({ app });
-// alternatively you can get a composed middleware from the apollo server
-// app.use(server.getMiddleware());
 
-mongoose.set("debug", true);
+server.applyMiddleware({ app });
+
+mongoose.set("debug", process.env.NODE_ENV !== "production");
 mongoose
   .connect(
     `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-0r8xh.gcp.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`,
@@ -72,6 +26,4 @@ mongoose
       );
     });
   })
-  .catch((err: any) => console.error(err));
-
-export {};
+  .catch((err) => console.error(err));

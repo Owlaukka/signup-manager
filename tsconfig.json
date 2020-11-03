@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "ESNext",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "target": "esnext",
+    "target": "ESNext",
     "noImplicitAny": true,
     "moduleResolution": "node",
+    "allowJs": true,
     "strict": true,
-    "outDir": "./dist"
+    "outDir": "dist",
+    "baseUrl": "."
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 }
