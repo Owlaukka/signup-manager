@@ -1,12 +1,4 @@
-import Event from "../../models/Event";
-
-type EventInputType = {
-  name: string;
-  description: string;
-  maxAttendees: number;
-  start: string;
-  end: string;
-};
+import Event, { EventBaseType } from "../../models/Event";
 
 const resolvers = {
   Query: {
@@ -15,7 +7,7 @@ const resolvers = {
   Mutation: {
     createEvent: async (
       _: any,
-      { name, description, maxAttendees, start, end }: EventInputType
+      { name, description, maxAttendees, start, end }: EventBaseType
     ) => {
       const newEvent = new Event({
         name,

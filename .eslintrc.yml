@@ -1,15 +1,19 @@
 env:
-  commonjs: true
   es2021: true
   node: true
 extends:
-  - airbnb-base
+  - airbnb-typescript/base
   - prettier
 parser: "@typescript-eslint/parser"
 parserOptions:
   ecmaVersion: 12
-  sourceType: "commonjs"
+  sourceType: "module"
   project: "tsconfig.json"
 plugins:
   - "@typescript-eslint"
-rules: { "no-console": ["error", { allow: ["warn", "error"] }] }
+rules:
+  {
+    "no-console": ["error", { allow: ["warn", "error"] }],
+    "@typescript-eslint/comma-dangle": ["error", "only-multiline"],
+    "@typescript-eslint/quotes": ["error", "double"],
+  }

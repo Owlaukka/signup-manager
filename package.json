@@ -10,7 +10,8 @@
     "build": "tsc",
     "prestart": "yarn run build",
     "start": "cross-env NODE_ENV=production node --es-module-specifier-resolution=node .",
-    "dev": "cross-env NODE_ENV=development concurrently \"tsc -w\" \"nodemon --es-module-specifier-resolution=node dist/server.js\""
+    "dev": "cross-env NODE_ENV=development concurrently \"tsc -w\" \"nodemon --es-module-specifier-resolution=node dist/server.js\"",
+    "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx --report-unused-disable-directives"
   },
   "dependencies": {
     "apollo-server-koa": "^2.19.0",
@@ -28,7 +29,7 @@
     "@typescript-eslint/parser": "^4.6.0",
     "concurrently": "^5.3.0",
     "eslint": "^7.12.1",
-    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-airbnb-typescript": "^12.0.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-import-resolver-typescript": "^2.3.0",
     "eslint-plugin-import": "^2.22.1",
