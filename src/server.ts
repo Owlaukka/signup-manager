@@ -4,10 +4,17 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 
 import schema from "./graphql";
+import { generateAuthContext } from "./helpers/auth";
 
 dotenv.config();
 
-const server = new ApolloServer({ schema });
+const server = new ApolloServer({
+  schema,
+  context: async ({ ctx }) => {
+    const authContext = generateAuthContext(ctx);
+    return { ...authContext };
+  },
+});
 const app = new Koa();
 
 server.applyMiddleware({ app });

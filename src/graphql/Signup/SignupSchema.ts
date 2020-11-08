@@ -1,4 +1,4 @@
-const { gql } = require("apollo-server-koa");
+import { gql } from "apollo-server-koa";
 
 const typeDefs = gql`
   type Signup {
@@ -13,4 +13,4 @@ const typeDefs = gql`
   }
 `;
 
-module.exports = typeDefs;
+export default typeDefs;

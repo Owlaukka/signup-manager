@@ -1,4 +1,4 @@
-const SignupSchema = require("./SignupSchema");
+import SignupSchema from "./SignupSchema";
 
-module.exports = { SignupSchema };
-export {};
+// eslint-disable-next-line import/prefer-default-export
+export { SignupSchema };
