@@ -10,7 +10,12 @@ const {
 export const encodeUserIntoToken = async (user: any, privateKey: KeyObject) => {
   try {
     const encodedUserInfo = await sign(
-      { userId: user.id, email: user.email, exp: addWeeks(1)(new Date()) },
+      {
+        userId: user.id,
+        username: user.username,
+        email: user.email,
+        exp: addWeeks(1)(new Date()),
+      },
       privateKey
     );
     return encodedUserInfo;
@@ -20,8 +25,7 @@ export const encodeUserIntoToken = async (user: any, privateKey: KeyObject) => {
   }
 };
 
-// TODO: rename maybe and fix typing
-export const decodeUserFromToken = async (
+const decodeUserFromToken = async (
   authToken: string,
   key: any
 ): Promise<{} | null> => {
@@ -38,7 +42,7 @@ export const decodeUserFromToken = async (
 };
 
 // eslint-disable-next-line no-return-await
-export const generatedPrivateKey = (async () => await generateKey("public"))();
+const generatedPrivateKey = (async () => await generateKey("public"))();
 
 export const generateAuthContext = async (context: Context) => {
   const privateKey = await generatedPrivateKey;

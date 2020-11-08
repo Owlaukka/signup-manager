@@ -7,6 +7,7 @@ const typeDefs = gql`
     username: String!
     password: String
     createdEvents: [Event!]!
+    roles: [String!]!
   }
 
   type AuthPayload {
@@ -14,17 +15,17 @@ const typeDefs = gql`
   }
 
   input UserInput {
-    email: String!
-    username: String!
+    email: String
+    username: String
     password: String!
   }
 
   type Query {
-    login(email: String!, password: String!): AuthPayload!
+    login(userInput: UserInput!): AuthPayload!
   }
 
   type Mutation {
-    signup(userInput: UserInput): AuthPayload!
+    signup(userInput: UserInput!): AuthPayload!
   }
 `;
 

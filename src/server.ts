@@ -11,7 +11,7 @@ dotenv.config();
 const server = new ApolloServer({
   schema,
   context: async ({ ctx }) => {
-    const authContext = generateAuthContext(ctx);
+    const authContext = await generateAuthContext(ctx);
     return { ...authContext };
   },
 });

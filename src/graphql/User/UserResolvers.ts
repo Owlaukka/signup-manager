@@ -1,14 +1,27 @@
 import bcrypt from "bcryptjs";
+import { KeyObject } from "crypto";
 
 import User from "../../models/User";
 import { encodeUserIntoToken } from "../../helpers/auth";
+
+type LoginInputType = {
+  userInput: {
+    username?: string;
+    email?: string;
+    password: string;
+  };
+};
 
 // TODO: move as much of the business logic out of the resolver to somewhere else.
 const resolvers = {
   Query: {
     // TODO: add username possiblity login and types
-    login: async (_: any, { email, password }: any, { privateKey }: any) => {
-      const user = await User.findOne({ email });
+    login: async (
+      _: any,
+      { userInput: { username, email, password } }: LoginInputType,
+      { privateKey }: { privateKey: KeyObject }
+    ) => {
+      const user = await User.findOne({ $or: [{ email }, { username }] });
       if (!user) {
         throw new Error("Invalid credentials.");
       }
