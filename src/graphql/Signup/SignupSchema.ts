@@ -1,4 +1,11 @@
 import { gql } from "apollo-server-koa";
+import { IEvent } from "../Event/EventSchema";
+
+export interface ISignup {
+  event: IEvent;
+  createdAt: String;
+  updatedAt: String;
+}
 
 const typeDefs = gql`
   type Signup {

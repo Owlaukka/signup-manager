@@ -1,11 +1,23 @@
 import { gql } from "apollo-server-koa";
 
+export interface IUser {
+  email: string;
+  username: string;
+  createdEvents: any[];
+  roles: string[];
+}
+
+export interface IUserInput {
+  email?: string;
+  username?: string;
+  password: string;
+}
+
 const typeDefs = gql`
   type User {
     _id: ID!
     email: String!
     username: String!
-    password: String
     createdEvents: [Event!]!
     roles: [String!]!
   }
@@ -25,7 +37,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    signup(userInput: UserInput!): AuthPayload!
+    createUser(userInput: UserInput!): AuthPayload!
   }
 `;
 

@@ -1,17 +1,20 @@
 import mongoose from "mongoose";
-import { EventBaseType } from "./Event";
+import bcrypt from "bcryptjs";
+import { IUser } from "../graphql/User/UserSchema";
 
 const { Schema } = mongoose;
 
-interface IUserSchema extends mongoose.Document {
-  email: string;
-  username: string;
+type ComparePassword = (
+  this: IUserModel,
+  passwordToCompareTo: string
+) => Promise<boolean>;
+
+export interface IUserModel extends mongoose.Document, IUser {
   password: string;
-  roles?: string[];
-  createdEvents?: EventBaseType[];
+  comparePassword: ComparePassword;
 }
 
-const UserSchema: mongoose.Schema<IUserSchema> = new Schema({
+const UserSchema: mongoose.Schema<IUserModel> = new Schema({
   email: {
     type: String,
     required: true,
@@ -35,6 +38,13 @@ const UserSchema: mongoose.Schema<IUserSchema> = new Schema({
   ],
 });
 
-const UserModel = mongoose.model<IUserSchema>("User", UserSchema);
+// eslint-disable-next-line func-names
+const comparePassword: ComparePassword = function (this, passwordToCompareTo) {
+  return bcrypt.compare(passwordToCompareTo, this.password);
+};
+
+UserSchema.method("comparePassword", comparePassword);
+
+const UserModel = mongoose.model<IUserModel>("User", UserSchema);
 
 export default UserModel;

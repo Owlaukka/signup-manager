@@ -2,12 +2,16 @@ import paseto from "paseto";
 import { addWeeks } from "date-fns/fp";
 import { KeyObject } from "crypto";
 import { Context } from "koa";
+import { IUserModel } from "../models/User";
 
 const {
   V2: { sign, verify, generateKey },
 } = paseto;
 
-export const encodeUserIntoToken = async (user: any, privateKey: KeyObject) => {
+export const encodeUserIntoToken = async (
+  user: IUserModel,
+  privateKey: KeyObject
+) => {
   try {
     const encodedUserInfo = await sign(
       {
@@ -27,11 +31,11 @@ export const encodeUserIntoToken = async (user: any, privateKey: KeyObject) => {
 
 const decodeUserFromToken = async (
   authToken: string,
-  key: any
-): Promise<{} | null> => {
+  privateKey: KeyObject
+) => {
   if (authToken) {
     try {
-      const decoded = await verify(authToken, key);
+      const decoded = await verify(authToken, privateKey);
       return decoded;
     } catch (e) {
       return null;

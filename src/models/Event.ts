@@ -1,24 +1,11 @@
 import mongoose from "mongoose";
+import { IEvent } from "../graphql/Event/EventSchema";
 
 const { Schema } = mongoose;
 
-export type EventBaseType = {
-  name: string;
-  description?: string;
-  maxAttendees?: number;
-  start: string;
-  end: string;
-};
+export interface IEventModel extends mongoose.Document, IEvent {}
 
-interface IEventSchema extends mongoose.Document, EventBaseType {
-  name: string;
-  description?: string;
-  maxAttendees?: number;
-  start: string;
-  end: string;
-}
-
-const EventSchema: mongoose.Schema<IEventSchema> = new Schema({
+const EventSchema: mongoose.Schema<IEventModel> = new Schema({
   name: {
     type: String,
     required: true,
@@ -45,6 +32,6 @@ const EventSchema: mongoose.Schema<IEventSchema> = new Schema({
   },
 });
 
-const EventModel = mongoose.model<IEventSchema>("Event", EventSchema);
+const EventModel = mongoose.model<IEventModel>("Event", EventSchema);
 
 export default EventModel;
