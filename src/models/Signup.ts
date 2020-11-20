@@ -1,11 +1,13 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { ISignup } from "../graphql/Signup/SignupSchema";
 
 const { Schema, model } = mongoose;
 
-export interface ISignupModel extends mongoose.Document, ISignup {}
+export interface ISignupDocument extends mongoose.Document, ISignup {}
 
-const SignupSchema = new Schema<ISignupModel>(
+interface ISignupModel extends Model<ISignupDocument> {}
+
+const SignupSchema = new Schema<ISignupDocument>(
   {
     event: {
       type: Schema.Types.ObjectId,
@@ -15,6 +17,6 @@ const SignupSchema = new Schema<ISignupModel>(
   { timestamps: true }
 );
 
-const Signup = model<ISignupModel>("Signup", SignupSchema);
+const Signup = model<ISignupDocument, ISignupModel>("Signup", SignupSchema);
 
 export default Signup;

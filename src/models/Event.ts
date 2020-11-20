@@ -1,11 +1,47 @@
-import mongoose from "mongoose";
-import { IEvent } from "../graphql/Event/EventSchema";
+import mongoose, { Model } from "mongoose";
+import { IEvent, IEventInput } from "../graphql/Event/EventSchema";
 
 const { Schema } = mongoose;
 
-export interface IEventModel extends mongoose.Document, IEvent {}
+export interface IEventDocument extends mongoose.Document, IEvent {}
 
-const EventSchema: mongoose.Schema<IEventModel> = new Schema({
+interface IEventModel extends Model<IEventDocument> {
+  addNewEvent: AddNewEvent;
+}
+
+type AddNewEvent = (
+  this: IEventModel,
+  eventInput: IEventInput
+) => Promise<IEventDocument>;
+
+const addNewEvent: AddNewEvent = async function addNewEvent(
+  this,
+  { name, description, maxAttendees, start, end }
+) {
+  try {
+    const newEvent = new this({
+      name,
+      description,
+      maxAttendees,
+      start: new Date(start),
+      end: new Date(end),
+    });
+    return newEvent.save();
+  } catch (err) {
+    console.error(err);
+    throw new Error(
+      `Failed to create an Event with the following parameters: ${{
+        name,
+        description,
+        maxAttendees,
+        start,
+        end,
+      }}`
+    );
+  }
+};
+
+const EventSchema: mongoose.Schema<IEventDocument> = new Schema({
   name: {
     type: String,
     required: true,
@@ -32,6 +68,11 @@ const EventSchema: mongoose.Schema<IEventModel> = new Schema({
   },
 });
 
-const EventModel = mongoose.model<IEventModel>("Event", EventSchema);
+EventSchema.static("addNewEvent", addNewEvent);
+
+const EventModel: IEventModel = mongoose.model<IEventDocument, IEventModel>(
+  "Event",
+  EventSchema
+);
 
 export default EventModel;

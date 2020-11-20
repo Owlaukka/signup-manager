@@ -8,12 +8,7 @@ type EventInput = {
 
 type Events = () => Promise<IEvent[]>;
 
-type CreateEvent = (
-  _: any,
-  {
-    eventInput: { name, description, maxAttendees, start, end },
-  }: EventInput
-) => Promise<IEvent>;
+type CreateEvent = (_: any, { eventInput }: EventInput) => Promise<IEvent>;
 
 interface Resolvers extends IResolvers {
   Query: {
@@ -29,19 +24,8 @@ const resolvers: Resolvers = {
     events: async () => Event.find(),
   },
   Mutation: {
-    createEvent: async (
-      _: any,
-      { eventInput: { name, description, maxAttendees, start, end } }
-    ) => {
-      const newEvent = new Event({
-        name,
-        description,
-        maxAttendees,
-        start: new Date(start),
-        end: new Date(end),
-      });
-      return newEvent.save();
-    },
+    createEvent: async (_: any, { eventInput }) =>
+      Event.addNewEvent(eventInput),
   },
 };
 

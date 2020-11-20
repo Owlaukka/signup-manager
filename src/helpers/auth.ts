@@ -2,14 +2,15 @@ import paseto from "paseto";
 import { addWeeks } from "date-fns/fp";
 import { KeyObject } from "crypto";
 import { Context } from "koa";
-import { IUserModel } from "../models/User";
+
+import { IUserModelDocument } from "../models/User";
 
 const {
   V2: { sign, verify, generateKey },
 } = paseto;
 
 export const encodeUserIntoToken = async (
-  user: IUserModel,
+  user: IUserModelDocument,
   privateKey: KeyObject
 ) => {
   try {
