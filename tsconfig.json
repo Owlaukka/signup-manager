@@ -4,9 +4,10 @@
     "esModuleInterop": true,
     "target": "ESNext",
     "noImplicitAny": true,
-    "moduleResolution": "node",
-    "allowJs": true,
+    "moduleResolution": "Node",
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "removeComments": true,
     "outDir": "dist"
   }
 }
