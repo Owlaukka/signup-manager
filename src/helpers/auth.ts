@@ -3,26 +3,44 @@ import { addWeeks } from "date-fns/fp";
 import { KeyObject } from "crypto";
 import { Context } from "koa";
 
-import { IUserModelDocument } from "../models/User";
+import User, { IUserModelDocument } from "../models/User";
 
 const {
   V2: { sign, verify, generateKey },
 } = paseto;
 
-export const encodeUserIntoToken = async (
-  user: IUserModelDocument,
+interface IAuthToken {
+  userId: string;
+  exp: Date;
+}
+
+interface IAuthContext {
+  user: IUserModelDocument | null;
+  privateKey: KeyObject;
+}
+
+type EncodeUserInfo = (
+  userId: string,
   privateKey: KeyObject
+) => Promise<string | null>;
+
+type DecodeAuthToken = (
+  authToken: string,
+  privateKey: KeyObject
+) => Promise<IAuthToken | null>;
+
+type GenerateAuthContext = (context: Context) => Promise<IAuthContext>;
+
+export const encodeUserIntoToken: EncodeUserInfo = async (
+  userId,
+  privateKey
 ) => {
   try {
-    const encodedUserInfo = await sign(
-      {
-        userId: user.id,
-        username: user.username,
-        email: user.email,
-        exp: addWeeks(1)(new Date()),
-      },
-      privateKey
-    );
+    const authTokenInfo = {
+      userId,
+      exp: addWeeks(1)(new Date()),
+    };
+    const encodedUserInfo = await sign(authTokenInfo, privateKey);
     return encodedUserInfo;
   } catch (e) {
     console.error("Signing user info into a token failed", e);
@@ -30,28 +48,22 @@ export const encodeUserIntoToken = async (
   }
 };
 
-const decodeUserFromToken = async (
-  authToken: string,
-  privateKey: KeyObject
-) => {
-  if (authToken) {
-    try {
-      const decoded = await verify(authToken, privateKey);
-      return decoded;
-    } catch (e) {
-      return null;
-    }
+const decodeAuthToken: DecodeAuthToken = async (authToken, privateKey) => {
+  if (!authToken) return null;
+  try {
+    return (await verify(authToken, privateKey)) as IAuthToken;
+  } catch (e) {
+    return null;
   }
-
-  return null;
 };
 
 // eslint-disable-next-line no-return-await
 const generatedPrivateKey = (async () => await generateKey("public"))();
 
-export const generateAuthContext = async (context: Context) => {
+export const generateAuthContext: GenerateAuthContext = async (context) => {
   const privateKey = await generatedPrivateKey;
   const token = context.request.header.authorization || "";
-  const user = await decodeUserFromToken(token, privateKey);
+  const decodedUserInfo = await decodeAuthToken(token, privateKey);
+  const user = await User.findById(decodedUserInfo?.userId);
   return { user, privateKey };
 };

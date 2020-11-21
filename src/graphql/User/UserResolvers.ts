@@ -44,7 +44,7 @@ const resolvers: Resolvers = {
     login: async (_, { userInput }, { privateKey }) => {
       const user = await User.login(userInput);
       return {
-        token: encodeUserIntoToken(user, privateKey),
+        token: encodeUserIntoToken(user.id, privateKey),
       };
     },
   },
@@ -52,7 +52,7 @@ const resolvers: Resolvers = {
     createUser: async (_, { userInput }, { privateKey }) => {
       const savedUser = await User.addNewUser(userInput);
       return {
-        token: encodeUserIntoToken(savedUser, privateKey),
+        token: encodeUserIntoToken(savedUser.id, privateKey),
       };
     },
   },
