@@ -64,6 +64,10 @@ export const generateAuthContext: GenerateAuthContext = async (context) => {
   const privateKey = await generatedPrivateKey;
   const token = context.request.header.authorization || "";
   const decodedUserInfo = await decodeAuthToken(token, privateKey);
-  const user = await User.findById(decodedUserInfo?.userId);
+  // TODO: figure out how to not make an actual DB query if user already is in context. Or use caching to shortcircuit this without DB querying
+  // Polling with a correct userId auth, for instance, will trigger this continously atm
+  const user = decodedUserInfo?.userId
+    ? await User.findById(decodedUserInfo?.userId)
+    : null;
   return { user, privateKey };
 };
