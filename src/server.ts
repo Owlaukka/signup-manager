@@ -3,7 +3,7 @@ import { ApolloServer } from "apollo-server-koa";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
-import schema from "./graphql";
+import schema from "./GraphQLSchema";
 import { generateAuthContext } from "./helpers/auth";
 
 dotenv.config();

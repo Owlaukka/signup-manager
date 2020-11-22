@@ -1,6 +1,6 @@
 import mongoose, { HookNextFunction, Model } from "mongoose";
 import bcrypt from "bcryptjs";
-import { IUser, IUserInput } from "../graphql/User/UserSchema";
+import { IUser, IUserInput } from "./UserSchema";
 
 const { Schema } = mongoose;
 

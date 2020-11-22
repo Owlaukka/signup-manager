@@ -1,5 +1,6 @@
 import mongoose, { Model } from "mongoose";
-import { IEvent, IEventInput } from "../graphql/Event/EventSchema";
+import { IEvent, IEventInput } from "./EventSchema";
+import { IUserModelDocument } from "../User/UserModel";
 
 const { Schema } = mongoose;
 
@@ -11,12 +12,14 @@ interface IEventModel extends Model<IEventDocument> {
 
 type AddNewEvent = (
   this: IEventModel,
-  eventInput: IEventInput
+  eventInput: IEventInput,
+  currentUser: IUserModelDocument
 ) => Promise<IEventDocument>;
 
 const addNewEvent: AddNewEvent = async function addNewEvent(
   this,
-  { name, description, maxAttendees, start, end }
+  { name, description, maxAttendees, start, end },
+  currentUser
 ) {
   try {
     const newEvent = new this({
@@ -25,8 +28,13 @@ const addNewEvent: AddNewEvent = async function addNewEvent(
       maxAttendees,
       start: new Date(start),
       end: new Date(end),
+      creator: currentUser,
     });
-    return newEvent.save();
+    const savedEvent = await newEvent.save();
+    currentUser.createdEvents.push(savedEvent);
+    await currentUser.save();
+
+    return savedEvent;
   } catch (err) {
     console.error(err);
     throw new Error(
@@ -64,6 +72,11 @@ const EventSchema: mongoose.Schema<IEventDocument> = new Schema({
   },
   end: {
     type: Date,
+    required: true,
+  },
+  creator: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
     required: true,
   },
 });

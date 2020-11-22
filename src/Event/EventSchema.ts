@@ -1,4 +1,7 @@
 import { gql } from "apollo-server-koa";
+// TODO: fix (only a type import-cycle)
+// eslint-disable-next-line import/no-cycle
+import { IUser } from "../User/UserSchema";
 
 export interface IEvent {
   name: string;
@@ -6,6 +9,7 @@ export interface IEvent {
   maxAttendees: number;
   start: string;
   end: string;
+  creator: IUser;
 }
 
 export interface IEventInput {
@@ -24,6 +28,7 @@ const typeDefs = gql`
     maxAttendees: Int!
     start: String!
     end: String!
+    creator: User!
   }
 
   input EventInput {

@@ -3,7 +3,7 @@ import { addWeeks } from "date-fns/fp";
 import { KeyObject } from "crypto";
 import { Context } from "koa";
 
-import User, { IUserModelDocument } from "../models/User";
+import User, { IUserModelDocument } from "../User/UserModel";
 
 const {
   V2: { sign, verify, generateKey },

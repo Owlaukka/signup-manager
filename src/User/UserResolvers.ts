@@ -1,8 +1,9 @@
 import { KeyObject } from "crypto";
 import { IResolvers } from "apollo-server-koa";
 
-import User from "../../models/User";
-import { encodeUserIntoToken } from "../../helpers/auth";
+import User from "./UserModel";
+import Event from "../Event/EventModel";
+import { encodeUserIntoToken } from "../helpers/auth";
 import { IUserInput } from "./UserSchema";
 
 interface ICreateUserInput extends IUserInput {
@@ -55,6 +56,10 @@ const resolvers: Resolvers = {
         token: encodeUserIntoToken(savedUser.id, privateKey),
       };
     },
+  },
+  User: {
+    createdEvents: async ({ createdEvents }) =>
+      Event.find({ _id: { $in: createdEvents } }),
   },
 };
 

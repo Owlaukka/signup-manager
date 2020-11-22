@@ -1,5 +1,5 @@
 import mongoose, { Model } from "mongoose";
-import { ISignup } from "../graphql/Signup/SignupSchema";
+import { ISignup } from "./SignupSchema";
 
 const { Schema, model } = mongoose;
 

@@ -1,9 +1,12 @@
 import { gql } from "apollo-server-koa";
+// TODO: fix this cyclical import
+// eslint-disable-next-line import/no-cycle
+import { IEvent } from "../Event/EventSchema";
 
 export interface IUser {
   email: string;
   username: string;
-  createdEvents: any[];
+  createdEvents: IEvent[];
   roles: string[];
 }
 
