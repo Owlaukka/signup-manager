@@ -3,6 +3,7 @@ import { addWeeks } from "date-fns/fp";
 import { KeyObject } from "crypto";
 import { Context } from "koa";
 
+// eslint-disable-next-line import/no-cycle
 import User, { IUserModelDocument } from "../User/UserModel";
 
 const {
@@ -16,7 +17,6 @@ interface IAuthToken {
 
 interface IAuthContext {
   user: IUserModelDocument | null;
-  privateKey: KeyObject;
 }
 
 type EncodeUserInfo = (
@@ -58,16 +58,18 @@ const decodeAuthToken: DecodeAuthToken = async (authToken, privateKey) => {
 };
 
 // eslint-disable-next-line no-return-await
-const generatedPrivateKey = (async () => await generateKey("public"))();
+export const generatedPrivateKey = (async () => await generateKey("public"))();
 
 export const generateAuthContext: GenerateAuthContext = async (context) => {
-  const privateKey = await generatedPrivateKey;
   const token = context.request.header.authorization || "";
-  const decodedUserInfo = await decodeAuthToken(token, privateKey);
+  const decodedUserInfo = await decodeAuthToken(
+    token,
+    await generatedPrivateKey
+  );
   // TODO: figure out how to not make an actual DB query if user already is in context. Or use caching to shortcircuit this without DB querying
   // Polling with a correct userId auth, for instance, will trigger this continously atm
   const user = decodedUserInfo?.userId
     ? await User.findById(decodedUserInfo?.userId)
     : null;
-  return { user, privateKey };
+  return { user };
 };

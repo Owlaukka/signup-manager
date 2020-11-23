@@ -8,6 +8,7 @@ export interface IEventDocument extends mongoose.Document, IEvent {}
 
 interface IEventModel extends Model<IEventDocument> {
   addNewEvent: AddNewEvent;
+  findGroupOfEvents: FindGroupOfEvents;
 }
 
 type AddNewEvent = (
@@ -15,6 +16,11 @@ type AddNewEvent = (
   eventInput: IEventInput,
   currentUser: IUserModelDocument
 ) => Promise<IEventDocument>;
+
+type FindGroupOfEvents = (
+  this: IEventModel,
+  eventIds: string[]
+) => Promise<IEventDocument[]>;
 
 const addNewEvent: AddNewEvent = async function addNewEvent(
   this,
@@ -47,6 +53,13 @@ const addNewEvent: AddNewEvent = async function addNewEvent(
       }}`
     );
   }
+};
+
+const findGroupOfEvents: FindGroupOfEvents = async function findGroupOfEvents(
+  this,
+  eventIds
+) {
+  return this.find({ _id: { $in: eventIds } });
 };
 
 const EventSchema: mongoose.Schema<IEventDocument> = new Schema({
@@ -82,6 +95,7 @@ const EventSchema: mongoose.Schema<IEventDocument> = new Schema({
 });
 
 EventSchema.static("addNewEvent", addNewEvent);
+EventSchema.static("findGroupOfEvents", findGroupOfEvents);
 
 const EventModel: IEventModel = mongoose.model<IEventDocument, IEventModel>(
   "Event",

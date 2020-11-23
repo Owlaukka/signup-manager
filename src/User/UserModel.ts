@@ -1,6 +1,8 @@
 import mongoose, { HookNextFunction, Model } from "mongoose";
 import bcrypt from "bcryptjs";
-import { IUser, IUserInput } from "./UserSchema";
+import { IUser, IUserInput, IAuthPayload } from "./UserSchema";
+// eslint-disable-next-line import/no-cycle
+import { encodeUserIntoToken, generatedPrivateKey } from "../helpers/auth";
 
 const { Schema } = mongoose;
 
@@ -27,12 +29,12 @@ type PreSaveHashHook = (
 type AddNewUser = (
   this: IUserModel,
   userInput: IUserInput
-) => Promise<IUserModelDocument>;
+) => Promise<IAuthPayload>;
 
 type Login = (
   this: IUserModel,
   loginInput: IUserInput
-) => Promise<IUserModelDocument>;
+) => Promise<IAuthPayload>;
 
 const preSaveHashHook: PreSaveHashHook = async function save(this, next) {
   const user = this;
@@ -72,7 +74,10 @@ const addNewUser: AddNewUser = async function addNewUser(
       username,
       password,
     });
-    return newUser.save();
+    const savedUser = await newUser.save();
+    return {
+      token: await encodeUserIntoToken(savedUser.id, await generatedPrivateKey),
+    };
   } catch (err) {
     console.error(err);
     throw new Error(
@@ -89,7 +94,9 @@ const login: Login = async function login(this, { email, username, password }) {
 
   await user.comparePassword(password);
 
-  return user;
+  return {
+    token: await encodeUserIntoToken(user.id, await generatedPrivateKey),
+  };
 };
 
 const UserSchema: mongoose.Schema<IUserModelDocument> = new Schema({

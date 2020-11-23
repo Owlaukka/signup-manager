@@ -1,10 +1,8 @@
-import { KeyObject } from "crypto";
 import { IResolvers } from "apollo-server-koa";
 
 import User from "./UserModel";
-import Event from "../Event/EventModel";
-import { encodeUserIntoToken } from "../helpers/auth";
-import { IUserInput } from "./UserSchema";
+import Event, { IEventDocument } from "../Event/EventModel";
+import { IAuthPayload, IUserInput } from "./UserSchema";
 
 interface ICreateUserInput extends IUserInput {
   email: string;
@@ -15,21 +13,13 @@ interface UserInput {
   userInput: ICreateUserInput;
 }
 
-interface AuthPayload {
-  token: Promise<string | null>;
-}
+type Login = (_: any, args: UserInput) => Promise<IAuthPayload>;
 
-type Login = (
-  _: any,
-  args: UserInput,
-  ctx: { privateKey: KeyObject }
-) => Promise<AuthPayload>;
+type CreateUser = (_: any, args: UserInput) => Promise<IAuthPayload>;
 
-type CreateUser = (
-  _: any,
-  args: UserInput,
-  ctx: { privateKey: KeyObject }
-) => Promise<AuthPayload>;
+type CreatedEvents = (args: {
+  createdEvents: string[];
+}) => Promise<IEventDocument[]>;
 
 interface Resolvers extends IResolvers {
   Query: {
@@ -38,28 +28,21 @@ interface Resolvers extends IResolvers {
   Mutation: {
     createUser: CreateUser;
   };
+  User: {
+    createdEvents: CreatedEvents;
+  };
 }
 
 const resolvers: Resolvers = {
   Query: {
-    login: async (_, { userInput }, { privateKey }) => {
-      const user = await User.login(userInput);
-      return {
-        token: encodeUserIntoToken(user.id, privateKey),
-      };
-    },
+    login: async (_, { userInput }) => User.login(userInput),
   },
   Mutation: {
-    createUser: async (_, { userInput }, { privateKey }) => {
-      const savedUser = await User.addNewUser(userInput);
-      return {
-        token: encodeUserIntoToken(savedUser.id, privateKey),
-      };
-    },
+    createUser: async (_, { userInput }) => User.addNewUser(userInput),
   },
   User: {
     createdEvents: async ({ createdEvents }) =>
-      Event.find({ _id: { $in: createdEvents } }),
+      Event.findGroupOfEvents(createdEvents),
   },
 };
 
