@@ -1,5 +1,6 @@
 import mongoose, { HookNextFunction, Model } from "mongoose";
 import bcrypt from "bcryptjs";
+// eslint-disable-next-line import/no-cycle
 import { IUser, IUserInput, IAuthPayload } from "./UserSchema";
 // eslint-disable-next-line import/no-cycle
 import { encodeUserIntoToken, generatedPrivateKey } from "../helpers/auth";

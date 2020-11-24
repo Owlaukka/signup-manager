@@ -22,6 +22,11 @@ type FindGroupOfEvents = (
   eventIds: string[]
 ) => Promise<IEventDocument[]>;
 
+type AddNewEventToUser = (
+  this: IEventModel,
+  createdEvent: IEventDocument
+) => Promise<void>;
+
 const addNewEvent: AddNewEvent = async function addNewEvent(
   this,
   { name, description, maxAttendees, start, end },
@@ -37,22 +42,23 @@ const addNewEvent: AddNewEvent = async function addNewEvent(
       creator: currentUser,
     });
     const savedEvent = await newEvent.save();
-    currentUser.createdEvents.push(savedEvent);
-    await currentUser.save();
 
     return savedEvent;
   } catch (err) {
     console.error(err);
     throw new Error(
-      `Failed to create an Event with the following parameters: ${{
-        name,
-        description,
-        maxAttendees,
-        start,
-        end,
-      }}`
+      `Failed to create an Event with the following parameters: ${name}, ${description}, ${maxAttendees}, ${start} and ${end}`
     );
   }
+};
+
+const addNewEventToUser: AddNewEventToUser = async function postAddNewEvent(
+  this: IEventModel,
+  createdEvent: IEventDocument
+) {
+  await createdEvent.creator.updateOne({
+    $push: { createdEvents: createdEvent },
+  });
 };
 
 const findGroupOfEvents: FindGroupOfEvents = async function findGroupOfEvents(
@@ -96,6 +102,7 @@ const EventSchema: mongoose.Schema<IEventDocument> = new Schema({
 
 EventSchema.static("addNewEvent", addNewEvent);
 EventSchema.static("findGroupOfEvents", findGroupOfEvents);
+EventSchema.post("addNewEvent", addNewEventToUser);
 
 const EventModel: IEventModel = mongoose.model<IEventDocument, IEventModel>(
   "Event",
