@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
+    "module": "CommonJS",
     "esModuleInterop": true,
     "target": "ESNext",
     "noImplicitAny": true,
@@ -8,6 +8,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "removeComments": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "rootDir": "./src"
   }
 }
