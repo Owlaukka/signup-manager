@@ -1,19 +1,19 @@
 import { IResolvers } from "apollo-server-koa";
-import Event from "./EventModel";
+import Event, { IEventDocument } from "./EventModel";
 import User, { IUserModelDocument } from "../User/UserModel";
-import { IEvent, IEventInput } from "./EventSchema";
+import { IEventInput } from "./EventSchema";
 
 type EventInput = {
   eventInput: IEventInput;
 };
 
-type Events = () => Promise<IEvent[]>;
+type Events = () => Promise<IEventDocument[]>;
 
 type CreateEvent = (
   _: any,
   args: EventInput,
   context: { user: IUserModelDocument }
-) => Promise<IEvent>;
+) => Promise<IEventDocument>;
 
 interface Resolvers extends IResolvers {
   Query: {
