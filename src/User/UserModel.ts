@@ -3,7 +3,11 @@ import bcrypt from "bcryptjs";
 // eslint-disable-next-line import/no-cycle
 import { IUser, IUserInput, IAuthPayload } from "./UserSchema";
 // eslint-disable-next-line import/no-cycle
-import { encodeUserIntoToken, generatedPrivateKey } from "../helpers/auth";
+import {
+  encodeUserIntoToken,
+  generatedPrivateKey,
+} from "../common/helpers/auth";
+import Role from "../common/constants/Role";
 
 const { Schema } = mongoose;
 
@@ -74,6 +78,7 @@ const addNewUser: AddNewUser = async function addNewUser(
       email,
       username,
       password,
+      roles: [Role.USER],
     });
     const savedUser = await newUser.save();
     return {

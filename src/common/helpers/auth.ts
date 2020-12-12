@@ -4,7 +4,7 @@ import { KeyObject } from "crypto";
 import { Context } from "koa";
 
 // eslint-disable-next-line import/no-cycle
-import User, { IUserModelDocument } from "../User/UserModel";
+import User, { IUserModelDocument } from "../../User/UserModel";
 
 const {
   V2: { sign, verify, generateKey },

@@ -9,7 +9,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production ts-node .",
     "dev": "cross-env NODE_ENV=development ts-node-dev .",
-    "lint": "tsc --noEmit && eslint src/ --ext .js,.jsx,.ts,.tsx --report-unused-disable-directives",
+    "lint": "tsc --noEmit && eslint src/ --ext .js,.jsx,.ts,.tsx",
     "postinstall": "husky install",
     "prettierfy-code": "prettier --write src/"
   },

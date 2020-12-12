@@ -16,4 +16,8 @@ rules:
     "no-console": ["error", { allow: ["warn", "error"] }],
     "@typescript-eslint/comma-dangle": ["error", "only-multiline"],
     "@typescript-eslint/quotes": ["error", "double"],
+    "class-methods-use-this": "off",
+    "no-param-reassign": "off",
+    "import/prefer-default-export": "off",
   }
+reportUnusedDisableDirectives: true

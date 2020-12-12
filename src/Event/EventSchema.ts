@@ -25,7 +25,7 @@ const typeDefs = gql`
     _id: ID!
     name: String!
     description: String
-    maxAttendees: Int!
+    maxAttendees: Int @auth
     start: String!
     end: String!
     creator: User!
