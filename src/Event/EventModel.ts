@@ -4,6 +4,7 @@ import { IUserModelDocument } from "../User/UserModel";
 
 const { Schema } = mongoose;
 
+// TYPES =================================================================
 export interface IEventDocument extends mongoose.Document, IEvent {}
 
 interface IEventModel extends Model<IEventDocument> {
@@ -14,7 +15,7 @@ interface IEventModel extends Model<IEventDocument> {
 type AddNewEvent = (
   this: IEventModel,
   eventInput: IEventInput,
-  currentUser: IUserModelDocument
+  currentUser: IUserModelDocument | null
 ) => Promise<IEventDocument>;
 
 type FindGroupOfEvents = (
@@ -26,6 +27,7 @@ type AddNewEventToUser = (
   this: IEventModel,
   createdEvent: IEventDocument
 ) => Promise<void>;
+// =============================================================================
 
 const addNewEvent: AddNewEvent = async function addNewEvent(
   this,

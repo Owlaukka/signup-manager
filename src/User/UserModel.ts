@@ -82,7 +82,10 @@ const addNewUser: AddNewUser = async function addNewUser(
     });
     const savedUser = await newUser.save();
     return {
-      token: await encodeUserIntoToken(savedUser.id, await generatedPrivateKey),
+      token: await encodeUserIntoToken(
+        savedUser.id!,
+        await generatedPrivateKey
+      ),
     };
   } catch (err) {
     console.error(err);
@@ -96,7 +99,7 @@ const login: Login = async function login(this, { email, username, password }) {
   const user = await this.findOne({
     $or: [{ email }, { username }],
   });
-  if (!user) throw new Error("Invalid credentials.");
+  if (!user?.id) throw new Error("Invalid credentials.");
 
   await user.comparePassword(password);
 

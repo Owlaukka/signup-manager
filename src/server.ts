@@ -20,9 +20,10 @@ const app = new Koa();
 server.applyMiddleware({ app });
 
 mongoose.set("debug", process.env.NODE_ENV !== "production");
+
 mongoose
   .connect(
-    `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-0r8xh.gcp.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`,
+    `mongodb://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-shard-00-00.0r8xh.gcp.mongodb.net:27017,cluster0-shard-00-01.0r8xh.gcp.mongodb.net:27017,cluster0-shard-00-02.0r8xh.gcp.mongodb.net:27017/${process.env.MONGO_DB}?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true&w=majority`,
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {
