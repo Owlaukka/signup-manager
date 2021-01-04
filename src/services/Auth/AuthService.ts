@@ -34,7 +34,7 @@ type AuthorizeResolver = <
 >(
   type: K,
   action: V
-) => V | ((...args: Parameters<V>) => null);
+) => (...args: Parameters<V>) => ReturnType<V> | null;
 
 export const authorizeResolver: AuthorizeResolver = (type, action) =>
   AUTH_PREDICATES[type](action);
