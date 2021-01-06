@@ -1,4 +1,5 @@
-export enum ActionTypes {
+export enum Permissions {
+  IS_LOGGED_IN = "IS_LOGGED_IN",
   ADD_EVENT = "ADD_EVENT",
   SIGNUP_TO_EVENT = "SIGNUP_TO_EVENT",
   BLOCK_ACTION = "BLOCK_ACTION",
@@ -10,7 +11,7 @@ type AuthPredicate = <T extends (...args: any[]) => any>(
   action: T
 ) => (...args: Parameters<T>) => ReturnType<T> | null;
 
-const addEventAuthPredicate: AuthPredicate = (action) => (...args) => {
+const isLoggedInAuthPredicate: AuthPredicate = (action) => (...args) => {
   const { user } = args[2];
   if (!user) return null;
   return action(...args);
@@ -22,19 +23,17 @@ const signupToEventAuthPredicate: AuthPredicate = (action) => (...args) =>
 const nullAuthPredicate: AuthPredicate = () => () => null;
 
 const AUTH_PREDICATES = {
-  [ActionTypes.ADD_EVENT]: addEventAuthPredicate,
-  [ActionTypes.SIGNUP_TO_EVENT]: signupToEventAuthPredicate,
-  [ActionTypes.BLOCK_ACTION]: nullAuthPredicate,
+  [Permissions.IS_LOGGED_IN]: isLoggedInAuthPredicate,
+  [Permissions.SIGNUP_TO_EVENT]: signupToEventAuthPredicate,
+  [Permissions.BLOCK_ACTION]: nullAuthPredicate,
 } as const;
 
-// K[ey] and V[alue]
-type AuthorizeResolver = <
-  K extends keyof typeof AUTH_PREDICATES,
-  V extends (...args: any[]) => any
->(
-  type: K,
+// K[ey] and V[alue] of AUTH_PREDICATES
+type AuthorizeResolver = <K extends keyof typeof AUTH_PREDICATES>(
+  permission: K
+) => <V extends (...args: any[]) => any>(
   action: V
 ) => (...args: Parameters<V>) => ReturnType<V> | null;
 
-export const authorizeResolver: AuthorizeResolver = (type, action) =>
-  AUTH_PREDICATES[type](action);
+export const authorizeResolver: AuthorizeResolver = (permission) => (action) =>
+  AUTH_PREDICATES[permission](action);

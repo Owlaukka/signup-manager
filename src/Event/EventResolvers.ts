@@ -1,6 +1,6 @@
 import Event, { IEventDocument } from "./EventModel";
 import User, { IUserModelDocument } from "../User/UserModel";
-import { authorizeResolver, ActionTypes } from "../services/Auth/AuthService";
+import { authorizeResolver, Permissions } from "../services/Auth/AuthService";
 import { IEventInput } from "./EventSchema";
 
 type CreateEvent = (
@@ -12,12 +12,13 @@ type CreateEvent = (
 const createEvent: CreateEvent = async (_: any, { eventInput }, { user }) =>
   Event.addNewEvent(eventInput, user);
 
+const authorizedCreateEvent = authorizeResolver(Permissions.IS_LOGGED_IN);
 const resolvers = {
   Query: {
     events: async () => Event.find(),
   },
   Mutation: {
-    createEvent: authorizeResolver(ActionTypes.ADD_EVENT, createEvent),
+    createEvent: authorizedCreateEvent(createEvent),
   },
   Event: {
     // TODO: maybe add an additional security check to make sure use does not contain password.
