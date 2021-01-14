@@ -1,48 +1,22 @@
-import { IResolvers } from "apollo-server-koa";
-
 import User from "./UserModel";
-import Event, { IEventDocument } from "../Event/EventModel";
-import { IAuthPayload, IUserInput } from "./UserSchema";
+import Event from "../Event/EventModel";
+import { IUserInput } from "./UserSchema";
+import SignupModel from "../Signup/SignupModel";
 
-interface ICreateUserInput extends IUserInput {
-  email: string;
-  username: string;
-}
-
-interface UserInput {
-  userInput: ICreateUserInput;
-}
-
-type Login = (_: any, args: UserInput) => Promise<IAuthPayload>;
-
-type CreateUser = (_: any, args: UserInput) => Promise<IAuthPayload>;
-
-type CreatedEvents = (args: {
-  createdEvents: string[];
-}) => Promise<IEventDocument[]>;
-
-interface Resolvers extends IResolvers {
+const resolvers = {
   Query: {
-    login: Login;
-  };
-  Mutation: {
-    createUser: CreateUser;
-  };
-  User: {
-    createdEvents: CreatedEvents;
-  };
-}
-
-const resolvers: Resolvers = {
-  Query: {
-    login: async (_, { userInput }) => User.login(userInput),
+    login: async (_: any, { userInput }: { userInput: IUserInput }) =>
+      User.login(userInput),
   },
   Mutation: {
-    createUser: async (_, { userInput }) => User.addNewUser(userInput),
+    createUser: async (_: any, { userInput }: { userInput: IUserInput }) =>
+      User.addNewUser(userInput),
   },
   User: {
-    createdEvents: async ({ createdEvents }) =>
+    createdEvents: async ({ createdEvents }: { createdEvents: string[] }) =>
       Event.findGroupOfEvents(createdEvents),
+    signups: async ({ signups }: { signups: string[] }) =>
+      SignupModel.findGroupOfSignups(signups),
   },
 };
 

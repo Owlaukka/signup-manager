@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 
 import schema from "./GraphQLSchema";
-import { generateAuthContext } from "./common/helpers/auth";
+import { generateAuthContext } from "./common/helpers/authentication";
 
 dotenv.config();
 

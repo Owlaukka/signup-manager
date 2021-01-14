@@ -3,6 +3,7 @@ import { mergeTypeDefs, mergeResolvers } from "@graphql-tools/merge";
 
 import { EventSchema, EventResolvers } from "./Event";
 import { UserSchema, UserResolvers } from "./User";
+import { SignupSchema, SignupResolvers } from "./Signup";
 import {
   enumTypeDefs,
   schemaDirectiveTypeDefs,
@@ -14,8 +15,9 @@ export default makeExecutableSchema({
   typeDefs: mergeTypeDefs([
     EventSchema,
     UserSchema,
+    SignupSchema,
     schemaDirectiveTypeDefs,
     enumTypeDefs,
   ]),
-  resolvers: mergeResolvers([EventResolvers, UserResolvers]),
+  resolvers: mergeResolvers([EventResolvers, UserResolvers, SignupResolvers]),
 });

@@ -1,3 +1,4 @@
 import SignupSchema from "./SignupSchema";
+import SignupResolvers from "./SignupResolvers";
 
-export { SignupSchema };
+export { SignupSchema, SignupResolvers };

@@ -17,6 +17,7 @@ rules:
     "@typescript-eslint/comma-dangle": ["error", "only-multiline"],
     "@typescript-eslint/quotes": ["error", "double"],
     "@typescript-eslint/indent": "off",
+    "func-names": "off",
     "class-methods-use-this": "off",
     "no-param-reassign": "off",
     "import/prefer-default-export": "off",

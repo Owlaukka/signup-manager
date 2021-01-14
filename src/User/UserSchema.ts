@@ -1,12 +1,14 @@
+/* eslint-disable import/no-cycle */
 import { gql } from "apollo-server-koa";
 // TODO: fix this cyclical import
-// eslint-disable-next-line import/no-cycle
-import { IEvent } from "../Event/EventSchema";
+import { IEventDocument } from "../Event/EventModel";
+import { ISignupDocument } from "../Signup/SignupModel";
 
 export interface IUser {
   email: string;
   username: string;
-  createdEvents: IEvent[];
+  createdEvents: IEventDocument[];
+  signups: ISignupDocument[];
   roles: string[];
 }
 
@@ -27,6 +29,7 @@ const typeDefs = gql`
     username: String!
     createdEvents: [Event!]!
     roles: [String!]!
+    signups: [Signup!]
   }
 
   type AuthPayload {

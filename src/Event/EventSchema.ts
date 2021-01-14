@@ -25,10 +25,11 @@ const typeDefs = gql`
     _id: ID!
     name: String!
     description: String
-    maxAttendees: Int @auth
+    maxAttendees: Int
     start: String!
     end: String!
     creator: User!
+    signups: [Signup!]
   }
 
   input EventInput {

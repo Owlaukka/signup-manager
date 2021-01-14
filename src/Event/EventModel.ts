@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import mongoose, { Model } from "mongoose";
 import { IEvent, IEventInput } from "./EventSchema";
 import { IUserModelDocument } from "../User/UserModel";
@@ -22,30 +23,34 @@ type FindGroupOfEvents = (
   this: IEventModel,
   eventIds: string[]
 ) => Promise<IEventDocument[]>;
-
-type AddNewEventToUser = (
-  this: IEventModel,
-  createdEvent: IEventDocument
-) => Promise<void>;
 // =============================================================================
 
-const addNewEvent: AddNewEvent = async function addNewEvent(
+const addNewEvent: AddNewEvent = async function (
   this,
   { name, description, maxAttendees, start, end },
   currentUser
 ) {
   try {
-    const newEvent = new this({
-      name,
-      description,
-      maxAttendees,
-      start: new Date(start),
-      end: new Date(end),
-      creator: currentUser,
-    });
-    const savedEvent = await newEvent.save();
+    const session = await mongoose.startSession();
+    let result;
+    await session.withTransaction(async () => {
+      const newEvent = new this({
+        name,
+        description,
+        maxAttendees,
+        start: new Date(start),
+        end: new Date(end),
+        creator: currentUser,
+      });
+      result = await newEvent.save();
 
-    return savedEvent;
+      await result.creator.updateOne({
+        $push: { createdEvents: result },
+      });
+    });
+
+    if (!result) throw new Error("Transaction failed");
+    return result;
   } catch (err) {
     console.error(err);
     throw new Error(
@@ -54,19 +59,7 @@ const addNewEvent: AddNewEvent = async function addNewEvent(
   }
 };
 
-const addNewEventToUser: AddNewEventToUser = async function postAddNewEvent(
-  this: IEventModel,
-  createdEvent: IEventDocument
-) {
-  await createdEvent.creator.updateOne({
-    $push: { createdEvents: createdEvent },
-  });
-};
-
-const findGroupOfEvents: FindGroupOfEvents = async function findGroupOfEvents(
-  this,
-  eventIds
-) {
+const findGroupOfEvents: FindGroupOfEvents = async function (this, eventIds) {
   return this.find({ _id: { $in: eventIds } });
 };
 
@@ -100,13 +93,18 @@ const EventSchema: mongoose.Schema<IEventDocument> = new Schema({
     ref: "User",
     required: true,
   },
+  signups: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Signup",
+    },
+  ],
 });
 
 EventSchema.static("addNewEvent", addNewEvent);
 EventSchema.static("findGroupOfEvents", findGroupOfEvents);
-EventSchema.post("addNewEvent", addNewEventToUser);
 
-const EventModel: IEventModel = mongoose.model<IEventDocument, IEventModel>(
+const EventModel = mongoose.model<IEventDocument, IEventModel>(
   "Event",
   EventSchema
 );

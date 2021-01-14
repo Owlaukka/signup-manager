@@ -1,3 +1,5 @@
+import { AuthenticationError } from "apollo-server-koa";
+
 export enum Permissions {
   IS_LOGGED_IN = "IS_LOGGED_IN",
   ADD_EVENT = "ADD_EVENT",
@@ -13,7 +15,7 @@ type AuthPredicate = <T extends (...args: any[]) => any>(
 
 const isLoggedInAuthPredicate: AuthPredicate = (action) => (...args) => {
   const { user } = args[2];
-  if (!user) return null;
+  if (!user) throw new AuthenticationError("Must be logged in");
   return action(...args);
 };
 

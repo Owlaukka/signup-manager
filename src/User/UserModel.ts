@@ -6,7 +6,7 @@ import { IUser, IUserInput, IAuthPayload } from "./UserSchema";
 import {
   encodeUserIntoToken,
   generatedPrivateKey,
-} from "../common/helpers/auth";
+} from "../common/helpers/authentication";
 import Role from "../common/constants/Role";
 
 const { Schema } = mongoose;
@@ -128,6 +128,12 @@ const UserSchema: mongoose.Schema<IUserModelDocument> = new Schema({
     {
       type: Schema.Types.ObjectId,
       ref: "Event",
+    },
+  ],
+  signups: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Signup",
     },
   ],
 });

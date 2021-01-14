@@ -1,8 +1,11 @@
+/* eslint-disable import/no-cycle */
 import { gql } from "apollo-server-koa";
-import { IEvent } from "../Event/EventSchema";
+import { IEventDocument } from "../Event/EventModel";
+import { IUserModelDocument } from "../User/UserModel";
 
 export interface ISignup {
-  event: IEvent;
+  event: IEventDocument;
+  user: IUserModelDocument;
   createdAt: String;
   updatedAt: String;
 }
@@ -11,12 +14,14 @@ const typeDefs = gql`
   type Signup {
     _id: ID!
     event: Event!
+    user: User!
     createdAt: String!
     updatedAt: String!
   }
 
-  type Query {
-    signups: [Signup!]!
+  type Mutation {
+    signupToEvent(eventId: String!): Signup
+    removeSignup(eventId: String!): Event
   }
 `;
 

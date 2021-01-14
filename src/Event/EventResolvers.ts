@@ -1,7 +1,11 @@
 import Event, { IEventDocument } from "./EventModel";
 import User, { IUserModelDocument } from "../User/UserModel";
-import { authorizeResolver, Permissions } from "../services/Auth/AuthService";
+import {
+  authorizeResolver,
+  Permissions,
+} from "../services/Auth/AuthorizationService";
 import { IEventInput } from "./EventSchema";
+import SignupModel from "../Signup/SignupModel";
 
 type CreateEvent = (
   _: any,
@@ -24,8 +28,9 @@ const resolvers = {
     // TODO: maybe add an additional security check to make sure use does not contain password.
     // The password can't be requested by the client because it isn't in the schema but it would still
     // probably be good-practise to make sure it isn't here either just to be safe.
-    creator: async ({ creator }: { creator: IUserModelDocument }) =>
-      User.findById(creator),
+    creator: async ({ creator }: { creator: string }) => User.findById(creator),
+    signups: async ({ signups }: { signups: string[] }) =>
+      SignupModel.findGroupOfSignups(signups),
   },
 };
 
