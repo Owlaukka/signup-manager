@@ -1,6 +1,6 @@
 /* eslint-disable import/no-cycle */
 import mongoose, { Model } from "mongoose";
-import EventModel from "../Event/EventModel";
+import EventModel, { IEventDocument } from "../Event/EventModel";
 import { IUserModelDocument } from "../User/UserModel";
 import { ISignup } from "./SignupSchema";
 
@@ -11,6 +11,7 @@ export interface ISignupDocument extends mongoose.Document, ISignup {}
 interface ISignupModel extends Model<ISignupDocument> {
   createSignup: CreateSignup;
   findGroupOfSignups: FindGroupOfSignups;
+  removeSignup: RemoveSignup;
 }
 
 type CreateSignup = (
@@ -19,11 +20,18 @@ type CreateSignup = (
   userId: IUserModelDocument
 ) => Promise<ISignupDocument>;
 
+type RemoveSignup = (
+  this: ISignupModel,
+  eventId: string,
+  user: IUserModelDocument
+) => Promise<IEventDocument> | never;
+
 type FindGroupOfSignups = (
   this: ISignupModel,
   eventIds: string[]
 ) => Promise<ISignupDocument[]>;
 
+// TODO: disallow duplicates
 const createSignup: CreateSignup = async function (this, eventId, currentUser) {
   try {
     const session = await mongoose.startSession();
@@ -58,6 +66,42 @@ const createSignup: CreateSignup = async function (this, eventId, currentUser) {
   }
 };
 
+const removeSignup: RemoveSignup = async function (this, eventId, currentUser) {
+  try {
+    const session = await mongoose.startSession();
+    let result;
+    await session.withTransaction(async () => {
+      const event = await EventModel.findById(eventId)
+        .populate({
+          path: "signups",
+          match: { user: { $eq: currentUser.id } },
+        })
+        .session(session);
+      if (!event) throw new Error("Invalid event ID given");
+      if (event.signups.length === 0)
+        throw new Error(
+          `No signup to remove for current user on event with id: ${eventId}`
+        );
+
+      await this.deleteMany({ _id: { $in: event.signups } }).session(session);
+      await event
+        .updateOne({ $pull: { signups: { $in: event.signups } } })
+        .session(session);
+      await currentUser
+        .updateOne({ $pull: { signups: { $in: event.signups } } })
+        .session(session);
+
+      result = event;
+    });
+
+    if (!result) throw new Error("Transaction failed");
+    return result;
+  } catch (err) {
+    console.error(err);
+    throw new Error("Failed to remove a Signup from requested event");
+  }
+};
+
 const findGroupOfSignups: FindGroupOfSignups = async function (
   this,
   signupIds
@@ -82,6 +126,7 @@ const SignupSchema = new Schema<ISignupDocument>(
 );
 
 SignupSchema.static("createSignup", createSignup);
+SignupSchema.static("removeSignup", removeSignup);
 SignupSchema.static("findGroupOfSignups", findGroupOfSignups);
 
 const SignupModel = model<ISignupDocument, ISignupModel>(

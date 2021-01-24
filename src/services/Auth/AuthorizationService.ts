@@ -2,8 +2,6 @@ import { AuthenticationError } from "apollo-server-koa";
 
 export enum Permissions {
   IS_LOGGED_IN = "IS_LOGGED_IN",
-  ADD_EVENT = "ADD_EVENT",
-  SIGNUP_TO_EVENT = "SIGNUP_TO_EVENT",
   BLOCK_ACTION = "BLOCK_ACTION",
 }
 
@@ -11,7 +9,7 @@ type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never;
 
 type AuthPredicate = <T extends (...args: any[]) => any>(
   action: T
-) => (...args: Parameters<T>) => ReturnType<T> | null;
+) => (...args: Parameters<T>) => ReturnType<T> | null | never;
 
 const isLoggedInAuthPredicate: AuthPredicate = (action) => (...args) => {
   const { user } = args[2];
@@ -19,14 +17,10 @@ const isLoggedInAuthPredicate: AuthPredicate = (action) => (...args) => {
   return action(...args);
 };
 
-const signupToEventAuthPredicate: AuthPredicate = (action) => (...args) =>
-  action(...args);
-
 const nullAuthPredicate: AuthPredicate = () => () => null;
 
 const AUTH_PREDICATES = {
   [Permissions.IS_LOGGED_IN]: isLoggedInAuthPredicate,
-  [Permissions.SIGNUP_TO_EVENT]: signupToEventAuthPredicate,
   [Permissions.BLOCK_ACTION]: nullAuthPredicate,
 } as const;
 

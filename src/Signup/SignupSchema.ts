@@ -21,7 +21,7 @@ const typeDefs = gql`
 
   type Mutation {
     signupToEvent(eventId: String!): Signup
-    removeSignup(eventId: String!): Event
+    removeOwnSignup(eventId: String!): Event
   }
 `;
 

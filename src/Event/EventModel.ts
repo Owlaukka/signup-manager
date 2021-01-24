@@ -2,11 +2,14 @@
 import mongoose, { Model } from "mongoose";
 import { IEvent, IEventInput } from "./EventSchema";
 import { IUserModelDocument } from "../User/UserModel";
+import { ISignupDocument } from "../Signup/SignupModel";
 
 const { Schema } = mongoose;
 
 // TYPES =================================================================
-export interface IEventDocument extends mongoose.Document, IEvent {}
+export interface IEventDocument extends mongoose.Document, IEvent {
+  signups: ISignupDocument[];
+}
 
 interface IEventModel extends Model<IEventDocument> {
   addNewEvent: AddNewEvent;
