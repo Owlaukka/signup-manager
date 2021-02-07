@@ -125,6 +125,8 @@ const SignupSchema = new Schema<ISignupDocument>(
   { timestamps: true }
 );
 
+SignupSchema.index({ event: 1, user: 1 }, { unique: true });
+
 SignupSchema.static("createSignup", createSignup);
 SignupSchema.static("removeSignup", removeSignup);
 SignupSchema.static("findGroupOfSignups", findGroupOfSignups);

@@ -16,13 +16,15 @@ type CreateEvent = (
 const createEvent: CreateEvent = async (_: any, { eventInput }, { user }) =>
   Event.addNewEvent(eventInput, user);
 
-const authorizedCreateEvent = authorizeResolver(Permissions.IS_LOGGED_IN);
+const isLoggedInAuthorizer = authorizeResolver(Permissions.IS_LOGGED_IN);
 const resolvers = {
   Query: {
     events: async () => Event.find(),
+    event: async (_parent: any, { eventId }: { eventId: string }) =>
+      Event.findById(eventId),
   },
   Mutation: {
-    createEvent: authorizedCreateEvent(createEvent),
+    createEvent: isLoggedInAuthorizer(createEvent),
   },
   Event: {
     // TODO: maybe add an additional security check to make sure use does not contain password.

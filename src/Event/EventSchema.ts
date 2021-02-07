@@ -42,6 +42,7 @@ const typeDefs = gql`
 
   type Query {
     events: [Event!]!
+    event(eventId: String!): Event
   }
 
   type Mutation {
