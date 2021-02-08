@@ -12,6 +12,7 @@ interface ISignupModel extends Model<ISignupDocument> {
   createSignup: CreateSignup;
   findGroupOfSignups: FindGroupOfSignups;
   removeSignup: RemoveSignup;
+  confirmSignup: ConfirmSignup;
 }
 
 type CreateSignup = (
@@ -25,6 +26,12 @@ type RemoveSignup = (
   eventId: string,
   user: IUserModelDocument
 ) => Promise<IEventDocument> | never;
+
+type ConfirmSignup = (
+  this: ISignupModel,
+  signupId: string,
+  isConfirmed?: boolean
+) => Promise<ISignupDocument>;
 
 type FindGroupOfSignups = (
   this: ISignupModel,
@@ -102,6 +109,30 @@ const removeSignup: RemoveSignup = async function (this, eventId, currentUser) {
   }
 };
 
+const confirmSignup: ConfirmSignup = async function (
+  this,
+  signupId,
+  isConfirmed
+) {
+  try {
+    const signup = await this.findById(signupId);
+
+    if (!signup) throw new Error("No event exists for the given ID");
+
+    if (typeof isConfirmed === "boolean") signup.isConfirmed = isConfirmed;
+    else signup.isConfirmed = true;
+
+    return signup.save();
+  } catch (err) {
+    console.error(err);
+    throw new Error(
+      `Failed to change confirmation status for a signup: ${signupId}; status ${
+        typeof isConfirmed === "boolean" ? isConfirmed : true
+      }.`
+    );
+  }
+};
+
 const findGroupOfSignups: FindGroupOfSignups = async function (
   this,
   signupIds
@@ -121,6 +152,10 @@ const SignupSchema = new Schema<ISignupDocument>(
       ref: "User",
       required: true,
     },
+    isConfirmed: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
@@ -129,6 +164,7 @@ SignupSchema.index({ event: 1, user: 1 }, { unique: true });
 
 SignupSchema.static("createSignup", createSignup);
 SignupSchema.static("removeSignup", removeSignup);
+SignupSchema.static("confirmSignup", confirmSignup);
 SignupSchema.static("findGroupOfSignups", findGroupOfSignups);
 
 const SignupModel = model<ISignupDocument, ISignupModel>(

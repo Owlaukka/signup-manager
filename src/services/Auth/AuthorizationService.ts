@@ -1,9 +1,11 @@
 import { AuthenticationError } from "apollo-server-koa";
 import EventModel from "../../Event/EventModel";
+import SignupModel from "../../Signup/SignupModel";
 
 export enum Permissions {
   IS_LOGGED_IN = "IS_LOGGED_IN",
   IS_OWN_EVENT = "IS_OWN_EVENT",
+  IS_SIGNUP_TO_OWN_EVENT = "IS_SIGNUP_TO_OWN_EVENT",
   BLOCK_ACTION = "BLOCK_ACTION",
 }
 
@@ -23,9 +25,21 @@ const isLoggedInAuthPredicate: AuthPredicate = (action) => (...args) => {
 
 const isOwnEventAuthPredicate: AuthPredicate = (action) => async (...args) => {
   const { user } = args[2]; // context
-  const [eventId] = args[1]; // resolver arguments
-  const event = await EventModel.findById(eventId).populate("user");
-  if (event?.creator.id !== user.id)
+  const { eventId } = args[1]; // resolver arguments
+  const event = await EventModel.findById(eventId).populate("creator");
+  if (!event?.creator?.id || event.creator.id !== user?.id)
+    throw new AuthenticationError("Not allowed to modify someone else's event");
+  return action(...args);
+};
+
+const isSignupToOwnEvent: AuthPredicate = (action) => async (...args) => {
+  const { user } = args[2]; // context
+  const { signupId } = args[1]; // resolver arguments
+  const signup = await SignupModel.findById(signupId).populate({
+    path: "event",
+    populate: { path: "creator" },
+  });
+  if (!signup?.event?.creator?.id || signup.event.creator.id !== user.id)
     throw new AuthenticationError("Not allowed to modify someone else's event");
   return action(...args);
 };
@@ -35,6 +49,7 @@ const nullAuthPredicate: AuthPredicate = () => () => null;
 const AUTH_PREDICATES = {
   [Permissions.IS_LOGGED_IN]: isLoggedInAuthPredicate,
   [Permissions.IS_OWN_EVENT]: isOwnEventAuthPredicate,
+  [Permissions.IS_SIGNUP_TO_OWN_EVENT]: isSignupToOwnEvent,
   [Permissions.BLOCK_ACTION]: nullAuthPredicate,
 } as const;
 

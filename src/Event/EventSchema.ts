@@ -55,7 +55,7 @@ const typeDefs = gql`
 
   type Mutation {
     createEvent(eventInput: EventInput!): Event
-    updateEvent(id: ID!, eventInput: ModifiableAttributes!): Event
+    updateEvent(eventId: ID!, eventInput: ModifiableAttributes!): Event
   }
 `;
 

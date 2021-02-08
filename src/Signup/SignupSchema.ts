@@ -6,8 +6,9 @@ import { IUserModelDocument } from "../User/UserModel";
 export interface ISignup {
   event: IEventDocument;
   user: IUserModelDocument;
-  createdAt: String;
-  updatedAt: String;
+  isConfirmed: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const typeDefs = gql`
@@ -15,6 +16,7 @@ const typeDefs = gql`
     _id: ID!
     event: Event!
     user: User!
+    isConfirmed: Boolean!
     createdAt: String!
     updatedAt: String!
   }
@@ -22,6 +24,7 @@ const typeDefs = gql`
   type Mutation {
     signupToEvent(eventId: String!): Signup
     removeOwnSignup(eventId: String!): Event
+    confirmSignup(signupId: String!, isConfirmed: Boolean): Signup
   }
 `;
 

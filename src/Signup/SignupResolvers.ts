@@ -18,7 +18,15 @@ type RemoveOwnSignup = (
   context: { user: IUserModelDocument; [x: string]: any }
 ) => Promise<IEventDocument>;
 
+type ConfirmSignup = (
+  _: any,
+  args: { signupId: string; isConfirmed?: boolean }
+) => Promise<ISignupDocument>;
+
 const loggedInAuthorizer = authorizeResolver(Permissions.IS_LOGGED_IN);
+const ownEventSignupAuthorizer = authorizeResolver(
+  Permissions.IS_SIGNUP_TO_OWN_EVENT
+);
 
 const createSignup: CreateSignup = async (_info, { eventId }, { user }) =>
   Signup.createSignup(eventId, user);
@@ -29,10 +37,16 @@ const removeOwnSignup: RemoveOwnSignup = async (
   { user }
 ) => Signup.removeSignup(eventId, user);
 
+const confirmSignup: ConfirmSignup = async (
+  _parent,
+  { signupId, isConfirmed }
+) => Signup.confirmSignup(signupId, isConfirmed);
+
 const resolvers = {
   Mutation: {
     signupToEvent: loggedInAuthorizer(createSignup),
     removeOwnSignup: loggedInAuthorizer(removeOwnSignup),
+    confirmSignup: ownEventSignupAuthorizer(loggedInAuthorizer(confirmSignup)),
   },
   Signup: {
     event: async ({ event }: { event: string }) => EventModel.findById(event),

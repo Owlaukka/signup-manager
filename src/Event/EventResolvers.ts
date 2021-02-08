@@ -21,11 +21,11 @@ type ModifyEvent = (
 const createEvent: CreateEvent = async (_: any, { eventInput }, { user }) =>
   Event.addNewEvent(eventInput, user);
 
-const updateEvent: ModifyEvent = async (_: any, { id, eventInput }) =>
-  Event.modifyEvent(id, eventInput);
+const updateEvent: ModifyEvent = async (_: any, { eventId, eventInput }) =>
+  Event.modifyEvent(eventId, eventInput);
 
 const isLoggedInAuthorizer = authorizeResolver(Permissions.IS_LOGGED_IN);
-const isOwnEventAuthorizer = authorizeResolver(Permissions.IS_LOGGED_IN);
+const isOwnEventAuthorizer = authorizeResolver(Permissions.IS_OWN_EVENT);
 const resolvers = {
   Query: {
     events: async () => Event.find(),
@@ -34,7 +34,7 @@ const resolvers = {
   },
   Mutation: {
     createEvent: isLoggedInAuthorizer(createEvent),
-    updateEvent: isOwnEventAuthorizer(isLoggedInAuthorizer(updateEvent)),
+    updateEvent: isLoggedInAuthorizer(isOwnEventAuthorizer(updateEvent)),
   },
   Event: {
     // TODO: maybe add an additional security check to make sure use does not contain password.
