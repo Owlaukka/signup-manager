@@ -13,6 +13,7 @@ export interface IEventDocument extends mongoose.Document, IEvent {
 
 interface IEventModel extends Model<IEventDocument> {
   addNewEvent: AddNewEvent;
+  modifyEvent: ModifyEvent;
   findGroupOfEvents: FindGroupOfEvents;
 }
 
@@ -20,6 +21,12 @@ type AddNewEvent = (
   this: IEventModel,
   eventInput: IEventInput,
   currentUser: IUserModelDocument | null
+) => Promise<IEventDocument>;
+
+type ModifyEvent = (
+  this: IEventModel,
+  eventId: string,
+  eventInput: IEventInput
 ) => Promise<IEventDocument>;
 
 type FindGroupOfEvents = (
@@ -58,6 +65,31 @@ const addNewEvent: AddNewEvent = async function (
     console.error(err);
     throw new Error(
       `Failed to create an Event with the following parameters: ${name}, ${description}, ${maxAttendees}, ${start} and ${end}`
+    );
+  }
+};
+
+const modifyEvent: ModifyEvent = async function (
+  this,
+  eventId,
+  { name, description, maxAttendees, start, end }
+) {
+  try {
+    const event = await this.findById(eventId);
+
+    if (!event) throw new Error("No event exists for the given ID");
+
+    if (name) event.name = name;
+    if (description) event.description = description;
+    if (maxAttendees) event.maxAttendees = maxAttendees;
+    if (start) event.start = start;
+    if (end) event.end = end;
+
+    return event.save();
+  } catch (err) {
+    console.error(err);
+    throw new Error(
+      `Failed to modify an Event with the following parameters: ${name}, ${description}, ${maxAttendees}, ${start} and ${end}`
     );
   }
 };
@@ -105,6 +137,7 @@ const EventSchema: mongoose.Schema<IEventDocument> = new Schema({
 });
 
 EventSchema.static("addNewEvent", addNewEvent);
+EventSchema.static("modifyEvent", modifyEvent);
 EventSchema.static("findGroupOfEvents", findGroupOfEvents);
 
 const EventModel = mongoose.model<IEventDocument, IEventModel>(

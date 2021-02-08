@@ -37,7 +37,15 @@ const typeDefs = gql`
     description: String
     maxAttendees: Int
     start: String!
-    end: String!
+    end: String
+  }
+
+  input ModifiableAttributes {
+    name: String
+    description: String
+    maxAttendees: Int
+    start: String
+    end: String
   }
 
   type Query {
@@ -47,6 +55,7 @@ const typeDefs = gql`
 
   type Mutation {
     createEvent(eventInput: EventInput!): Event
+    updateEvent(id: ID!, eventInput: ModifiableAttributes!): Event
   }
 `;
 
